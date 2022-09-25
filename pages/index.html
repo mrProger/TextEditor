@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главная</title>
+</head>
+<body>
+    <form action="load-file" method="post" enctype="multipart/form-data" class="load-file-form">
+        <input class="load-file-form__input" type="file" name="file" />
+        <a href="javascript:loadFile()">Загрузить</a>
+    </form>
+
+    <script>
+        function loadFile() {
+            let form = document.querySelector('.load-file-form');
+            let input = document.querySelector('.load-file-form__input');
+
+            if (input.value.trim() == '') {
+                alert('Необходимо выбрать файл для загрузки');
+                return;
+            }
+
+            if (!input.value.endsWith('.txt')) {
+                alert('На данный момент можно загрузить только txt файл');
+                return;
+            }
+
+            form.submit();
+        }
+    </script>
+</body>
+</html>

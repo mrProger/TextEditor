@@ -9,10 +9,6 @@
 <body>
     <button class="bold" onclick="bold()"><b>Bold</b></button><br><br>
     <div class="text-input" contenteditable="true"></div>
-    <form action="test" method="post" enctype="multipart/form-data">
-        <input type="file" name="file"/>
-        <input type="submit"/>
-    </form>
 
     <style>
         .text-input {
@@ -29,8 +25,21 @@
     </style>
 
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let input = document.querySelector('.text-input');
+
+            fetch('read-file', {
+                method: 'POST',
+                body: null
+            }).then((response) => {
+                return response.text().then(function (text) {
+                    input.innerHTML = text;
+                });
+            });
+        });
+
         function bold() {
-            let res = document.execCommand('bold', false, null);
+            document.execCommand('bold', false, null);
         }
     </script>
 </body>
