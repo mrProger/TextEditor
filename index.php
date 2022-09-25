@@ -9,16 +9,28 @@ use PHPRouter\Router;
 use PHPTemplater\Template;
 use PHPView\View;
 use PHPExceptionHandler\ExceptionHandler;
+use PHPSystem\System;
 
 $router = new Router();
 
 $router->post("load-file", function() {
-    move_uploaded_file($_FILES["file"]["tmp_name"], "file.txt");
+    session_start();
+    $dir = __DIR__ . '/files';
+    if (!is_dir($dir)) {
+        mkdir($dir, 0777, true);
+    }
+    move_uploaded_file($_FILES["file"]["tmp_name"], "$dir/" . $_FILES["file"]["name"]);
+    $_SESSION["file"] = "$dir/" . $_FILES["file"]["name"];
     echo "<script>document.location = 'editor'</script>";
 });
 
 $router->post("read-file", function() {
-    $content = file_get_contents(__DIR__ . "/file.txt");
+    session_start();
+    if (System::isNull($_SESSION["file"])) {
+        echo "<script>document.location = ''</script>";
+    }
+
+    $content = file_get_contents($_SESSION["file"]);
 
     if ($content == null) {
         ExceptionHandler::generateError("Не удалось прочитать загруженный файл");
@@ -30,6 +42,7 @@ $router->post("read-file", function() {
 $router->get("editor", function() {
     $template = new Template(__DIR__ . '/pages/editor.html');
     echo View::createFromTemplate($template);
+    echo $GLOBALS["filename"];
 });
 
 $router->get("/", function() {
