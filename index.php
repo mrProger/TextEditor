@@ -16,16 +16,46 @@ $router = new Router();
 $router->post("load-file", function() {
     session_start();
     $dir = __DIR__ . '/files';
+
     if (!is_dir($dir)) {
         mkdir($dir, 0777, true);
     }
+
     move_uploaded_file($_FILES["file"]["tmp_name"], "$dir/" . $_FILES["file"]["name"]);
     $_SESSION["file"] = "$dir/" . $_FILES["file"]["name"];
+    $_SESSION["filename"] = $_FILES["file"]["name"];
+
     echo "<script>document.location = 'editor'</script>";
+});
+
+$router->post("get-file-name", function() {
+    session_start();
+    echo $_SESSION["filename"];
+
+    $_SESSION["file"] = null;
+    $_SESSION["filename"] = null;
+});
+
+$router->post("save-file", function() {
+    session_start();
+    if (!isset($_SESSION["file"]) || $_SESSION["file"] == null) {
+        echo "<script>document.location = '/'</script>";
+    }
+
+    $data = $GLOBALS["router"]->getPostRouteData();
+
+    if (!isset($data["text"])) {
+        ExceptionHandler::generateError("JSON должен содержать поле text");
+    }
+
+    file_put_contents($_SESSION["file"], $data["text"]);
+
+    echo "Файл успешно сохранен!";
 });
 
 $router->post("read-file", function() {
     session_start();
+
     if (System::isNull($_SESSION["file"])) {
         echo "<script>document.location = ''</script>";
     }

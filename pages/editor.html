@@ -9,6 +9,7 @@
 <body>
     <button class="bold" onclick="bold()"><b>Bold</b></button><br><br>
     <div class="text-input" contenteditable="true"></div>
+    <button onclick="save()">Сохранить</button>
 
     <style>
         .text-input {
@@ -27,7 +28,6 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             let input = document.querySelector('.text-input');
-
             fetch('read-file', {
                 method: 'POST',
                 body: null
@@ -40,6 +40,44 @@
 
         function bold() {
             document.execCommand('bold', false, null);
+        }
+
+        function save() {
+            let value = document.querySelector('.text-input').innerHTML;
+            fetch('save-file', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8'
+                },
+                body: JSON.stringify({
+                    'text': value
+                })
+            }).then((response) => {
+                return response.text().then(function(text) {
+                    alert(text);
+                    downloadFile();
+                    document.location = '/';
+                });
+            });
+        }
+
+        function downloadFile() {
+            fetch('get-file-name', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8'
+                },
+                body: null
+            }).then((response) => {
+                return response.text().then(function(text) {
+                    let link = document.createElement('a');
+                    link.style.display = 'none';
+                    link.setAttribute('download', text);
+                    link.href = `/files/${text}`;
+                    document.body.append(link);
+                    link.click();
+                });
+            });
         }
     </script>
 </body>
